@@ -65,10 +65,12 @@ let g:yankring_replace_n_pkey='<leader>p'           " Replace previous key
 let g:yankring_replace_n_nkey='<leader>n'           " Replace next key
 nnoremap <silent> <F9> :YRShow<CR>
 
+" vim-gitgutter 
+Plugin 'airblade/vim-gitgutter'
+
 "
 " Python related
 "
-
 
 " Python-mode
 " A collection of python utilities for Vim
