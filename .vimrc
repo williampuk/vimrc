@@ -38,6 +38,9 @@ Plugin 'bling/vim-airline'
 set laststatus=2  " appear all the time
 set ttimeoutlen=50
 let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#syntastic#enabled = 1
+let g:airline#extensions#hunks#enabled = 1
+let g:airline#extensions#branch#enabled = 1
 
 " Conque
 " Run terminal inside Vim buffer
@@ -61,12 +64,19 @@ Plugin 'terryma/vim-multiple-cursors'
 " YankRing
 " Maintains a history of Yank
 Plugin 'vim-scripts/YankRing.vim'
-let g:yankring_replace_n_pkey='<leader>p'           " Replace previous key
-let g:yankring_replace_n_nkey='<leader>n'           " Replace next key
+let g:yankring_replace_n_pkey=''           " Replace previous key
+let g:yankring_replace_n_nkey=''           " Replace next key
 nnoremap <silent> <F9> :YRShow<CR>
 
 " vim-gitgutter 
 Plugin 'airblade/vim-gitgutter'
+
+" fugitive.vim
+" Git wrapper
+Plugin 'tpope/vim-fugitive'
+
+" NERD Commenter
+Plugin 'scrooloose/nerdcommenter'
 
 "
 " Python related
@@ -136,6 +146,10 @@ filetype plugin indent on    " required
 " Other settings
 "
 
+" No error bell
+set noerrorbells visualbell t_vb=
+autocmd GUIEnter * set visualbell t_vb=
+
 " Syntax highlight
 syntax on
 set background=dark
@@ -144,6 +158,18 @@ colo peaksea
 " Allow 'u' to undo Ctrl-U and Ctrl-W
 inoremap <c-u> <c-g>u<c-u>
 inoremap <c-w> <c-g>u<c-w>
+
+" Move lines
+nnoremap <C-j> :m .+1<CR>==
+nnoremap <C-k> :m .-2<CR>==
+inoremap <C-j> <Esc>:m .+1<CR>==gi
+inoremap <C-k> <Esc>:m .-2<CR>==gi
+vnoremap <C-j> :m '>+1<CR>gv=gv
+vnoremap <C-k> :m '<-2<CR>gv=gv
+
+" Horizontal scrolling
+map <C-L> 20zl " Scroll 20 characters to the right
+map <C-H> 20zh " Scroll 20 characters to the left
 
 " Make backspace work as other editors
 set backspace=indent,eol,start
@@ -156,13 +182,14 @@ set clipboard=unnamedplus
 " http://vim.wikia.com/wiki/Map_Ctrl-S_to_save_current_or_new_files
 noremap <C-S> :update<CR>
 vnoremap <C-S> <C-C>:update<CR>
-inoremap <C-S> <C-O>:update<CR> " This does not work in iTerm2, not sure about other terminal
+inoremap <C-S> <C-O>:update<CR> 
 
-" Easier split navigations
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+" Easier split navigations 
+" (disabled, clashes with move line)
+" nnoremap <C-J> <C-W><C-J>
+" nnoremap <C-K> <C-W><C-K>
+" nnoremap <C-L> <C-W><C-L>
+" nnoremap <C-H> <C-W><C-H>
 
 " Natural split opening
 set splitbelow
@@ -179,8 +206,10 @@ set hls
 nnoremap <silent> <C-N> :nohlsearch<CR>
 
 " Easier moving between tabs
-map <Leader>[ <esc>:tabprevious<CR>
-map <Leader>] <esc>:tabnext<CR>
+nmap <Leader>[ <esc>:tabprevious<CR>
+nmap <Leader>] <esc>:tabnext<CR>
+nmap <Leader>o <esc>:tabnew<CR>
+nmap <Leader>w <esc>:tabclose<CR>
 
 " Map sort function to a key
 vnoremap <Leader>s :sort<CR>
@@ -223,10 +252,8 @@ set hidden
 " This replaces :tabnew which I used to bind to this mapping
 nmap <leader>T :enew<cr>
 
-" Move to the next buffer
+" Move to the next and previous buffer
 nmap <leader>l :bnext<CR>
-
-" Move to the previous buffer
 nmap <leader>h :bprevious<CR>
 
 " Close the current buffer and move to the previous one
@@ -235,5 +262,12 @@ nmap <leader>bq :bp <BAR> bd #<CR>
 
 " Show all open buffers and their status
 nmap <leader>bl :ls<CR>
-" F5 to show buffers and select the buffer by number
+" F3 to show buffers and select the buffer by number
 nmap <F3> :buffers<CR>:buffer<Space>
+
+" switching to the existing tab if the buffer is open, or creating a new one if
+" not
+set switchbuf=usetab,newtab
+
+" Auto close vim if NERDTree is the only window left open
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
